@@ -75,7 +75,7 @@ public class Hotel
         return totalFrigobar;
     }
     
-    private static void checkOut(int quarto, boolean[] statusQuarto, String nomeHospede[], int[][] consumo, int diarias)
+    private static void checkOut(int quarto, boolean[] statusQuarto, String nomeHospede[], int[][] consumo, int diarias, int[] quartoHospede)
     {
         if (statusQuarto[quarto] == false)
         {
@@ -92,8 +92,10 @@ public class Hotel
             
             statusQuarto[quarto] = true;
             nomeHospede[quarto] = "";
+            quartoHospede[quarto] = 0;
             for (int j = 0; j < 4; j++) 
                 consumo[quarto][j] = 0;
+            
         }
         else
         {
@@ -112,9 +114,19 @@ public class Hotel
         }
     }
     
+    private static void quartosDisponiveis (boolean[] statusQuarto)
+    {
+        System.out.println("\n======= Todas as Reservas =======");
+        for (int quarto = 0; quarto < statusQuarto.length; quarto++)
+        {
+            if (statusQuarto[quarto] == true)
+                System.out.printf("%d x Disponivel\n", quarto+1);
+        }
+    }
+    
     private static void consultarHospede(int quarto, String nomeHospede[], int quartoHospede[], boolean statusQuarto[])
     {
-        System.out.println("\n======= Dados do Hospede =======");
+        System.out.println("\n======= Consulta de Ocupacao =======");
         
         if (statusQuarto[quarto] == true)
         {
@@ -124,7 +136,7 @@ public class Hotel
         else
         {
             System.out.printf("Nome: %s\n", nomeHospede[quarto]);
-            System.out.printf("Numero da Reserva: %d\n", quartoHospede[quarto]);
+            System.out.printf("Numero da Reserva: %d\n", quartoHospede[quarto]+1);
         }
     }
     
@@ -166,7 +178,6 @@ public class Hotel
         {
             if (stop)
                 break;
-            stop = false;
                        
             menuGeral();
             System.out.print("Digite: ");
@@ -177,7 +188,8 @@ public class Hotel
             {
                 case 1:
                     System.out.println("\n\n\nHora de Reservar um Quarto!");
-                    System.out.print("Nome do Hospede: ");
+                    quartosDisponiveis (statusQuarto);
+                    System.out.print("\nNome do Hospede: ");
                     nome = scanner.nextLine();
                                 
                     if (nome.isEmpty())
@@ -192,7 +204,7 @@ public class Hotel
                                 
                     if (quarto < 1 || quarto > maxQuartos || !isEmptyQuarto(quarto-1, statusQuarto))
                     {
-                        throwException(" Quarto Invalid ou Ocupado!");
+                        throwException(" Quarto Invalido ou Ocupado!");
                         break;
                     }
                                            
@@ -217,9 +229,11 @@ public class Hotel
                     break;
                               
                 case 3:
-                    produtos();
+                    System.out.println("\n");
                     System.out.print("Numero do Quarto: ");
                     quarto = scanner.nextInt();
+                    System.out.println("\n");
+                    produtos();
                     scanner.nextLine();
                                 
                     if (quarto < 1 || quarto > maxQuartos || statusQuarto[quarto-1] == true)
@@ -260,7 +274,7 @@ public class Hotel
                                 
                     if (quarto < 1 || quarto > maxQuartos || statusQuarto[quarto-1] == true)
                     {
-                        throwException("Produto Invalido!");
+                        throwException("Quarto Invalido!");
                         break;
                     }
                                       
@@ -274,8 +288,8 @@ public class Hotel
                         break;
                     }
                                 
-                    checkOut(quarto-1, statusQuarto, nomeHospede, consumoFrigobar, diarias);
-                    System.out.println(">> Check-Out COncluido");
+                    checkOut(quarto-1, statusQuarto, nomeHospede, consumoFrigobar, diarias, quartoHospede);
+                    System.out.println(">> Check-Out Concluido");
                     break;
                         
                 case 5:
@@ -308,7 +322,7 @@ public class Hotel
                     {
                         throwException("Quarto Invalido");
                         break;
-                   }
+                    }
                                 
                     System.out.println("Hospede: " + nomeHospede[quarto-1]);
                     System.out.print("Deseja mudar [1] Nome, [2] Numero do Quarto, [3] Ambos: ");
@@ -334,13 +348,14 @@ public class Hotel
                         novoQuarto = scanner.nextInt();
                         scanner.nextLine();
                                    
-                        if (statusQuarto[novoQuarto-1] == true)
+                        if (novoQuarto < 1 || novoQuarto > maxQuartos || !isEmptyQuarto(novoQuarto-1, statusQuarto))
                         {
-                            throwException("Quarto Já Ocupado!");
+                            throwException(" Quarto Invalido ou Ocupado!");
                             break;
                         }
                                   
                         nome = nomeHospede[quarto-1];
+                        statusQuarto[quarto-1] = true;
                         moverFrigobar(quarto-1, novoQuarto-1, consumoFrigobar);
                         nomeHospede[quarto-1] = "";
                         reservarQuarto(novoQuarto-1, statusQuarto, nome, nomeHospede, quartoHospede);
